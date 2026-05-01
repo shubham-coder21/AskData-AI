@@ -195,7 +195,7 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-client = Groq(api_key=os.getenv("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"))
+client = Groq(api_key=os.environ.get("GROQ_API_KEY"))
 
 UPLOAD_FOLDER = "uploads"
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
@@ -215,7 +215,7 @@ def smart_logic(question):
     if match:
         city = match.group(1)
         result = df[df["City"].str.lower() == city.lower()]
-        return result.to_dict(orient="records")
+        return result.to_dict(orient="records")3
 
     # top
     if "top" in q or "highest" in q:
