@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>AskData AI</title>
+
+<style>
+body {
+    background: #0d1117;
+    color: white;
+    font-family: Arial;
+    display: flex;
+    justify-content: center;
+    margin-top: 40px;
+}
+
+.container {
+    width: 400px;
+    background: #161b22;
+    padding: 20px;
+    border-radius: 12px;
+}
+
+input, button {
+    width: 100%;
+    margin: 8px 0;
+    padding: 10px;
+    border-radius: 8px;
+    border: none;
+}
+
+button {
+    background: #00ffcc;
+    font-weight: bold;
+}
+
+.chat {
+    background: black;
+    padding: 10px;
+    height: 250px;
+    overflow-y: auto;
+    margin-top: 10px;
+    border-radius: 8px;
+}
+</style>
+
+</head>
+<body>
+
+<div class="container">
+
+<h2>🤖 AskData AI</h2>
+
+<input type="file" id="file">
+<input type="text" id="question" placeholder="Ask question...">
+
+<button onclick="ask()">Ask</button>
+
+<div class="chat" id="chat"></div>
+
+<h3>History</h3>
+<div id="history"></div>
+
+</div>
+
+<script>
+
+async function ask() {
+    let file = document.getElementById("file").files[0];
+    let question = document.getElementById("question").value;
+
+    let formData = new FormData();
+    formData.append("file", file);
+    formData.append("question", question);
+
+    let chat = document.getElementById("chat");
+
+    chat.innerHTML += "<p>Q: " + question + "</p>";
+    chat.innerHTML += "<p>⏳ Thinking...</p>";
+
+    let res = await fetch("http://127.0.0.1:8000/ask", {
+        method: "POST",
+        body: formData
+    });
+
+    let data = await res.json();
+
+    // remove thinking
+    chat.innerHTML = chat.innerHTML.replace("⏳ Thinking...", "");
+
+    // FORMAT OUTPUT
+    if (Array.isArray(data.answer)) {
+        let html = "<table border='1'>";
+        html += "<tr>";
+
+        Object.keys(data.answer[0]).forEach(key => {
+            html += "<th>" + key + "</th>";
+        });
+
+        html += "</tr>";
+
+        data.answer.forEach(row => {
+            html += "<tr>";
+            Object.values(row).forEach(val => {
+                html += "<td>" + val + "</td>";
+            });
+            html += "</tr>";
+        });
+
+        html += "</table>";
+
+        chat.innerHTML += html;
+
+    } else {
+        chat.innerHTML += "<p>" + data.answer + "</p>";
+    }
+
+    loadHistory();
+}
+
+async function loadHistory() {
+    let res = await fetch("http://127.0.0.1:8000/history");
+    let data = await res.json();
+
+    let html = "";
+    data.reverse().forEach(item => {
+        html += "<p>" + item.question + "</p>";
+    });
+
+    document.getElementById("history").innerHTML = html;
+}
+
+loadHistory();
+
+</script>
+
+</body>
+</html>
