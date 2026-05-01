@@ -4,3 +4,4 @@ pandas
 python-multipart
 sqlalchemy
 groq
+python -dotenv
