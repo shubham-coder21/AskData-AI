@@ -1,7 +1,7 @@
 fastapi
 uvicorn
 pandas
-python-multipart
-sqlalchemy
 groq
 python-dotenv
+sqlalchemy
+python-multipart

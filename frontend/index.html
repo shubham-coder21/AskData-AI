@@ -1,49 +1,81 @@
-<!DOCTYPE html>
+<!-- <!-- <!DOCTYPE html>
 <html>
 <head>
 <title>AskData AI</title>
 
 <style>
 body {
-    background: #0d1117;
-    color: white;
-    font-family: Arial;
+    background: linear-gradient(135deg, #0f172a, #020617);
+    font-family: sans-serif;
     display: flex;
     justify-content: center;
-    margin-top: 40px;
+    padding: 30px;
+    color: white;
 }
 
 .container {
-    width: 400px;
-    background: #161b22;
+    width: 450px;
+    backdrop-filter: blur(20px);
+    background: rgba(255,255,255,0.05);
     padding: 20px;
-    border-radius: 12px;
+    border-radius: 15px;
+    box-shadow: 0 0 40px rgba(0,255,200,0.1);
+}
+
+h2 {
+    text-align: center;
 }
 
 input, button {
     width: 100%;
-    margin: 8px 0;
+    margin-top: 10px;
     padding: 10px;
-    border-radius: 8px;
+    border-radius: 10px;
     border: none;
 }
 
 button {
-    background: #00ffcc;
+    background: #00ffc3;
     font-weight: bold;
+    cursor: pointer;
 }
 
 .chat {
-    background: black;
-    padding: 10px;
-    height: 250px;
+    margin-top: 15px;
+    height: 300px;
     overflow-y: auto;
+    background: #020617;
+    padding: 10px;
+    border-radius: 10px;
+}
+
+.msg {
+    margin: 10px 0;
+}
+
+.user {
+    text-align: right;
+    color: #00ffc3;
+}
+
+.bot {
+    text-align: left;
+    color: #ffffff;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
     margin-top: 10px;
-    border-radius: 8px;
+}
+
+td, th {
+    border: 1px solid #444;
+    padding: 5px;
 }
 </style>
-
 </head>
+
 <body>
 
 <div class="container">
@@ -51,31 +83,32 @@ button {
 <h2>🤖 AskData AI</h2>
 
 <input type="file" id="file">
-<input type="text" id="question" placeholder="Ask question...">
+<input type="text" id="q" placeholder="Ask anything about your data...">
 
 <button onclick="ask()">Ask</button>
 
 <div class="chat" id="chat"></div>
 
-<h3>History</h3>
-<div id="history"></div>
-
 </div>
 
 <script>
 
+let fileUploaded = false;
+
 async function ask() {
     let file = document.getElementById("file").files[0];
-    let question = document.getElementById("question").value;
-
-    let formData = new FormData();
-    formData.append("file", file);
-    formData.append("question", question);
-
+    let q = document.getElementById("q").value;
     let chat = document.getElementById("chat");
 
-    chat.innerHTML += "<p>Q: " + question + "</p>";
-    chat.innerHTML += "<p>⏳ Thinking...</p>";
+    chat.innerHTML += `<div class="msg user">Q: ${q}</div>`;
+    chat.innerHTML += `<div class="msg bot">⏳ Thinking...</div>`;
+
+    let formData = new FormData();
+    if (!fileUploaded && file) {
+        formData.append("file", file);
+        fileUploaded = true;
+    }
+    formData.append("question", q);
 
     let res = await fetch("http://127.0.0.1:8000/ask", {
         method: "POST",
@@ -84,53 +117,186 @@ async function ask() {
 
     let data = await res.json();
 
-    // remove thinking
     chat.innerHTML = chat.innerHTML.replace("⏳ Thinking...", "");
 
-    // FORMAT OUTPUT
     if (Array.isArray(data.answer)) {
-        let html = "<table border='1'>";
-        html += "<tr>";
+        let table = "<table><tr>";
+        Object.keys(data.answer[0]).forEach(k => table += `<th>${k}</th>`);
+        table += "</tr>";
 
-        Object.keys(data.answer[0]).forEach(key => {
-            html += "<th>" + key + "</th>";
+        data.answer.forEach(r => {
+            table += "<tr>";
+            Object.values(r).forEach(v => table += `<td>${v}</td>`);
+            table += "</tr>";
         });
 
-        html += "</tr>";
-
-        data.answer.forEach(row => {
-            html += "<tr>";
-            Object.values(row).forEach(val => {
-                html += "<td>" + val + "</td>";
-            });
-            html += "</tr>";
-        });
-
-        html += "</table>";
-
-        chat.innerHTML += html;
+        table += "</table>";
+        chat.innerHTML += `<div class="msg bot">${table}</div>`;
 
     } else {
-        chat.innerHTML += "<p>" + data.answer + "</p>";
+        chat.innerHTML += `<div class="msg bot">${data.answer}</div>`;
     }
 
-    loadHistory();
+    chat.scrollTop = chat.scrollHeight;
 }
 
+</script>
+
+</body>
+</html> -->
+
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>AskData AI</title>
+
+<style>
+body {
+    margin: 0;
+    font-family: Arial;
+    background: #0f172a;
+    color: white;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+}
+.container {
+    width: 450px;
+    background: #1e293b;
+    padding: 20px;
+    border-radius: 12px;
+}
+input, button {
+    width: 100%;
+    padding: 10px;
+    margin-top: 10px;
+}
+button {
+    background: #10b981;
+    border: none;
+    color: white;
+}
+.chat {
+    margin-top: 15px;
+    max-height: 300px;
+    overflow-y: auto;
+    background: black;
+    padding: 10px;
+}
+.msg {
+    margin-bottom: 10px;
+    padding: 8px;
+    border-radius: 8px;
+}
+.user { background: #1d4ed8; }
+.bot { background: #065f46; }
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+}
+td, th {
+    border: 1px solid #555;
+    padding: 5px;
+}
+</style>
+</head>
+
+<body>
+
+<div class="container">
+    <h2>🤖 AskData AI</h2>
+
+    <input type="file" id="file">
+    <input type="text" id="question" placeholder="Ask your question">
+    <button onclick="ask()">Ask</button>
+
+    <div class="chat" id="chat"></div>
+</div>
+
+<script>
+async function ask() {
+    const file = document.getElementById("file").files[0];
+    const question = document.getElementById("question").value;
+
+    addMessage(question, "user");
+
+    let formData = new FormData();
+    formData.append("question", question);
+    if (file) formData.append("file", file);
+
+    let res = await fetch("http://127.0.0.1:8000/ask", {
+        method: "POST",
+        body: formData
+    });
+
+    let data = await res.json();
+    renderAnswer(data.answer);
+}
+
+function addMessage(text, type) {
+    let chat = document.getElementById("chat");
+    let div = document.createElement("div");
+    div.className = "msg " + type;
+    div.innerText = text;
+    chat.appendChild(div);
+}
+
+function renderAnswer(answer) {
+    let chat = document.getElementById("chat");
+    let div = document.createElement("div");
+    div.className = "msg bot";
+
+    if (Array.isArray(answer)) {
+        div.innerHTML = table(answer);
+    } else {
+        div.innerText = answer;
+    }
+
+    chat.appendChild(div);
+}
+
+function table(data) {
+    let keys = Object.keys(data[0]);
+    let html = "<table><tr>";
+    keys.forEach(k => html += `<th>${k}</th>`);
+    html += "</tr>";
+
+    data.forEach(r => {
+        html += "<tr>";
+        keys.forEach(k => html += `<td>${r[k]}</td>`);
+        html += "</tr>";
+    });
+
+    return html + "</table>";
+}
+
+// 🔥 LOAD HISTORY
 async function loadHistory() {
     let res = await fetch("http://127.0.0.1:8000/history");
     let data = await res.json();
 
-    let html = "";
-    data.reverse().forEach(item => {
-        html += "<p>" + item.question + "</p>";
-    });
+    data.forEach(item => {
+        addMessage(item.question, "user");
 
-    document.getElementById("history").innerHTML = html;
+        try {
+            let parsed = JSON.parse(item.answer);
+
+            if (Array.isArray(parsed)) {
+                renderAnswer(parsed);
+            } else {
+                addMessage(parsed, "bot");
+            }
+        } catch {
+            addMessage(item.answer, "bot");
+        }
+    });
 }
 
-loadHistory();
-
+window.onload = loadHistory;
 </script>
 
 </body>
