@@ -228,7 +228,7 @@ async function ask() {
     formData.append("question", question);
     if (file) formData.append("file", file);
 
-    let res = await fetch("http://askdata-ai-production.up.railway.app", {
+    let res = await fetch("https://askdata-ai-production.up.railway.app/ask", {
         method: "POST",
         body: formData
     });
