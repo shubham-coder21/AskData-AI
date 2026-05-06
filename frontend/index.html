@@ -276,7 +276,7 @@ function table(data) {
 
 // 🔥 LOAD HISTORY
 async function loadHistory() {
-    let res = await fetch("http://askdata-ai-production.up.railway.app");
+    let res = await fetch("https://askdata-ai-production.up.railway.app/history");
     let data = await res.json();
 
     data.forEach(item => {
